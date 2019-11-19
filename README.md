@@ -18,10 +18,10 @@ CLI:
 For PPTP:
 The format for the command line instructions to create a PPTP Connection is as follows "VpnCreator.exe VpnName DestAddress 1"
 
-Example: " VpnCreator.exe "Connection Name" Hostname 1 true " | This will create a perfectly PPTP connection that uses windows login credentials
+Example: " app.exe "Connection Name" Hostname 1 true " | This will create a perfectly PPTP connection that uses windows login credentials
 
 For L2TP:
 The format for the command line instructions to create an L2TP Connection is as follows "VpnCreator.exe VpnName DestAddress PresharedKey"
     
-Example: " VpnCreator.exe "Connection Name" Hostname L2TPKey false " | This will create a valid L2TP connection that does not use the windows login credentials
+Example: " app.exe "Connection Name" Hostname L2TPKey false " | This will create a valid L2TP connection that does not use the windows login credentials
 
