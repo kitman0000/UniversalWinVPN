@@ -4,6 +4,7 @@ C# GUI and CLI app to create L2TP or PPTP VPN connections - Win Vista, 7, 8, 10
 # Functionality
 This application will configure BOTH PPTP and L2TP connections with pre-shared key
 GUI for manual user configuration or command line options, it can work as a login script or GPO push with minimal annoyance to your users
+
 The flags that this applications requires look like this "VpnCreator.exe VpnName DestAddress L2TPKey(Or 1 for PPTP) UseCurrentCreds(true or false)"
 
 # Technical / Build Details
