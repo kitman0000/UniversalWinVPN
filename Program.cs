@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using DotRas;
+using Microsoft.Win32;
 
 namespace UniversalWinVPN
 {
@@ -63,7 +64,8 @@ namespace UniversalWinVPN
                     VPNEntry.Options.UseLogOnCredentials = useLogin;
                     PhoneBook.Entries.Add(VPNEntry);
                     VPNEntry.UpdateCredentials(RasPreSharedKey.Client, l2tp);
-                    MessageBox.Show("L2TP VPN Created Succesfully!");
+                    FixReg();
+                    MessageBox.Show("L2TP VPN Created Succesfully! Please reboot to complete setup.");
                     return 2;
                 }
             }
@@ -72,6 +74,14 @@ namespace UniversalWinVPN
                 MessageBox.Show("VPN Creation Failure");
                 return 0;
             }
+        }
+        public void FixReg()
+        {
+            const string keyName = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\PolicyAgent";
+            const string valueName = "AssumeUDPEncapsulationContextOnSendRule";
+            const int value = 2;
+
+            Registry.SetValue(keyName, valueName, value);
         }
     }
 }
