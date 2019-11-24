@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using DotRas;
+using DotRas.Design;
 using Microsoft.Win32;
+using DotRas;
+using System.Net;
 
 namespace UniversalWinVPN
 {
@@ -17,64 +19,68 @@ namespace UniversalWinVPN
         {
             if (args.Length > 0)
             {
-                if (args[2] == null)
+                if(args[0] == "create")
                 {
-                    Console.WriteLine("Please enter arguments as follows: 'name' 'destination' 'l2tp' 'use login (true or false)'" + "Press Any Key to Exit");
-                    Console.ReadLine();
-                    Environment.Exit(0);
+                    CreateConnection createConn = new CreateConnection();
+                    createConn.CreateVPN(args[1], args[2]);
+                }
+                else if (args[0] == "connect")
+                {
+                    CreateConnection createConn = new CreateConnection();
+                    createConn.ConnectVPN(args[1], args[2],args[3]);
+                }
+                else if(args[0] == "fixReg")
+                {
+                    CreateConnection createConn = new CreateConnection();
+                    createConn.FixReg();
                 }
                 else
                 {
-                    var worker = new CreateConnection();
-                    worker.CreateVPN(args[0], args[1], args[2], Boolean.Parse(args[3]));
+                    Console.WriteLine("WRONG COMMAND!");
+                    Console.WriteLine("create <name> <destination>                    create a new vpn");
+                    Console.WriteLine("connect <name> <username> <pwd>      connect to a vpn");
+                    Console.WriteLine("fixReg                                                           fix registry");
                 }
             }
             else
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1());
+                Application.Run(new VPNCreateForm());
             }
         }
     }
 
     public class CreateConnection
     {
-        public int CreateVPN(string name, string destination, string l2tp, bool useLogin)
+        public void CreateVPN(string name, string destination)
         {
-            try
-            {
-                RasPhoneBook PhoneBook = new RasPhoneBook();
-                PhoneBook.Open();
-                if (l2tp == "1")
-                {
-                    var strat = RasVpnStrategy.PptpOnly;
-                    RasEntry VPNEntry = RasEntry.CreateVpnEntry(name, destination, strat, DotRas.RasDevice.Create(name, DotRas.RasDeviceType.Vpn));
-                    VPNEntry.Options.UsePreSharedKey = false;
-                    VPNEntry.Options.UseLogOnCredentials = useLogin;
-                    PhoneBook.Entries.Add(VPNEntry);
-                    MessageBox.Show("PPTP VPN Created Succesfully!");
-                    return 1;
-                }
-                else
-                {
-                    var strat = RasVpnStrategy.L2tpOnly;
-                    RasEntry VPNEntry = RasEntry.CreateVpnEntry(name, destination, strat, DotRas.RasDevice.Create(name, DotRas.RasDeviceType.Vpn));
-                    VPNEntry.Options.UsePreSharedKey = true;
-                    VPNEntry.Options.UseLogOnCredentials = useLogin;
-                    PhoneBook.Entries.Add(VPNEntry);
-                    VPNEntry.UpdateCredentials(RasPreSharedKey.Client, l2tp);
-                    FixReg();
-                    MessageBox.Show("L2TP VPN Created Succesfully! Please reboot to complete setup.");
-                    return 2;
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("VPN Creation Failure");
-                return 0;
-            }
+            RasPhoneBook PhoneBook = new RasPhoneBook();
+            PhoneBook.Open();
+
+            RasVpnStrategy strategy = RasVpnStrategy.L2tpOnly;  // Set your strategy here
+
+            RasEntry VPNEntry = RasEntry.CreateVpnEntry(name, destination, strategy, DotRas.RasDevice.Create(name, DotRas.RasDeviceType.Vpn));
+            PhoneBook.Entries.Add(VPNEntry);
+
+            Console.WriteLine("Create VPN Success!");
         }
+
+        public void ConnectVPN(string name,string userName,string pwd)
+        {
+            RasPhoneBook PhoneBook = new RasPhoneBook();
+            PhoneBook.Open();
+
+            RasDialer dialer = new RasDialer();
+            dialer.EntryName = name;
+            dialer.PhoneBookPath = PhoneBook.Path;
+
+            dialer.Credentials = new NetworkCredential(userName, pwd);
+            dialer.Dial();
+
+            Console.WriteLine("Connect to VPN Success!");
+        }
+
         public void FixReg()
         {
             const string keyName = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\PolicyAgent";
